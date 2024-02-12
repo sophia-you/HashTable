@@ -237,10 +237,17 @@ void insert(Node** &table, Student* student, int tableSize)
 
 	       cout << "collisions: " << numCollisions << endl;
 
-	       // when you get to the end of the linked list, create a new node
-	       Node* node = new Node(student);
-	       current->setNext(node);
-	       //cout << (current->getNext())->getStudent()->getFirst() << endl;
+	       if (numCollisions <= 4)
+		 {
+		   // when you get to the end of the linked list, create a new node
+		   Node* node = new Node(student);
+		   current->setNext(node);
+		 }
+
+	       // you have to rehash
+	       else
+		 {
+		 }
 	     }
 	 }
      }
@@ -327,6 +334,7 @@ void printByIndex(Node** table, int tableSize)
   * This function doubles the number of slots in the table and puts all the data
   * in this new, larger table to avoid collisions
   */
+
  void rehash(Node** table, Node** newtable)
  {
    // create a new table with double the slots

@@ -24,7 +24,7 @@ void insert(Node** &table, Student* student, int tableSize);
 void remove(int id, Node* prevNode, Node* currentNode, Node* &startNode);
 void printByIndex(Node** table, int tableSize);
 void printByNode(Node* nextNode, Node* startNode);
-void rehash(Node** table, Node** newtable);
+void rehash(Node** table, int tableSize);
 void generateStudents(int &ID, vector<Student*> randomStudents, int numStudents);
 
 int main()
@@ -215,7 +215,6 @@ void insert(Node** &table, Student* student, int tableSize)
 	       //cout << "empty slot" << endl;
 	       Node* head = new Node(student);
 	       table[i] = head;
-	       //cout << (table[i])->getStudent()->getFirst() << endl;
 	     }
 	   // collision detected
 	   else if (table[i] != NULL)
@@ -237,16 +236,16 @@ void insert(Node** &table, Student* student, int tableSize)
 
 	       cout << "collisions: " << numCollisions << endl;
 
-	       if (numCollisions <= 4)
-		 {
-		   // when you get to the end of the linked list, create a new node
-		   Node* node = new Node(student);
-		   current->setNext(node);
-		 }
+	       Node* node = new Node(student);
+	       current->setNext(node);
 
 	       // you have to rehash
-	       else
+	       if (numCollisions >= 4)
 		 {
+		   cout << "rehash required" << endl;
+		   //Node** newtable = new Node*[tableSize * 2 + 1];
+		   // the new table should be more than 2x the number of slots
+		   rehash(table, tableSize);
 		 }
 	     }
 	 }
@@ -335,12 +334,32 @@ void printByIndex(Node** table, int tableSize)
   * in this new, larger table to avoid collisions
   */
 
- void rehash(Node** table, Node** newtable)
+ void rehash(Node** table, int tableSize)
  {
-   // create a new table with double the slots
+   cout << "entered rehash function. table size " << tableSize << endl;
+
+   // create a new table with at least double the slots
+   Node** newtable = new Node*[tableSize * 2 + 1];
+   
    // walk through the entire old table
+   for (int i = 0; i < tableSize - 1; i++)
+     {
+       Node* current = table[i];
+       while (current != NULL)
+	 {
+	   // create a new search key
+	   int searchKey = hashFunction(current->getStudent()->getID(), (tableSize * 2 + 1));
+	   insert(newtable, current->getStudent(), (tableSize *2 + 1));
+	   //current->reset(); // set student = new student, next = null
+	   delete current;
+	   
+	   current = current->getNext();
+	 }
+     }
    // create keys by hashing all the ids from the old table
-   //
+   // set values inside the old table to equal NULL
+   // delete everything in the old table
+   // set old table equal to the new table
  }
 
  /*

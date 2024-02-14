@@ -20,7 +20,7 @@ using namespace std;
 
 // function prototypes
 int hashFunction(int ID, int tableSize);
-void insert(Node** &table, Student* student, int tableSize);
+bool insert(Node** &table, Student* student, int tableSize);
 void remove(int id, Node* prevNode, Node* currentNode, Node* &startNode);
 void printByIndex(Node** table, int tableSize);
 void printByNode(Node* nextNode, Node* startNode);
@@ -103,7 +103,10 @@ int main()
  	      Student* student = new Student(first, last, id, gpa);
 
  	      // insert the student into the hash table
-	      insert(table, student, tableSize);
+	      if (insert(table, student, tableSize))
+		{
+		  rehash(table, tableSize);
+		}
 	      
  	    }
  	  else if (strcmp(input, "random") == 0)
@@ -133,7 +136,10 @@ int main()
  	      generateStudents(idCheck, randomStudents, numStudents);
 	      for (vector<Student*>:: iterator it = randomStudents.begin(); it != randomStudents.end(); it++)
 		{
-		  insert(table, (*it), tableSize);
+		  if(insert(table, (*it), tableSize))
+		    {
+		      rehash(table, tableSize);
+		    }
 		}
  	    }
  	  else
@@ -197,8 +203,9 @@ int main()
 
  /*
   * This function inserts a student into the table according to its key.
-  */
-void insert(Node** &table, Student* student, int tableSize)
+  * It returns a boolean that says whether or not it needs a rehash. 
+ */
+bool insert(Node** &table, Student* student, int tableSize)
  {
    // hash the student ID to get a key
    int searchKey = hashFunction(student->getID(), tableSize);
@@ -234,25 +241,22 @@ void insert(Node** &table, Student* student, int tableSize)
 		   numCollisions++;
 		 }
 
-	       cout << "collisions: " << numCollisions << endl;
-
 	       Node* node = new Node(student);
 	       current->setNext(node);
 
 	       // you have to rehash
 	       if (numCollisions > 3)
 		 {
-		   cout << "rehash required" << endl;
-		   //Node** newtable = new Node*[tableSize * 2 + 1];
 		   // the new table should be more than 2x the number of slots
-		   rehash(table, tableSize);
-		   cout << "out of rehash" << endl;
+		   return true;
+		
 		 }
 
 
 	     }
 	 }
      }
+   return false;
  }
 
  /*
@@ -343,12 +347,12 @@ void printByIndex(Node** table, int tableSize)
 
    // create a new table with at least double the slots
    tableSize = tableSize * 2 + 1;
+
    Node** newtable = new Node*[tableSize];
    
    // walk through the entire old table
    for (int i = 0; i < (tableSize - 1)/2 - 1; i++)
      {
-       cout << "hi" << endl;
        Node* current = table[i];
        while (current != NULL)
 	 {
@@ -369,17 +373,10 @@ void printByIndex(Node** table, int tableSize)
      }
 
    // now that the original table has been cleared, set the old table to the new table
-   cout << "before deleting table" << endl;
+
    delete[] table;
-   cout << "hello" << endl;
    table = newtable;
-   cout << "hi " << endl;
    return;
-   
-   // create keys by hashing all the ids from the old table
-   // set values inside the old table to equal NULL
-   // delete everything in the old table
-   // set old table equal to the new table
  }
 
  /*

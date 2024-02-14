@@ -40,3 +40,9 @@ void Node::setNext(Node* nextNode){
 Node* Node::getNext(){
     return next;
 }
+
+// sets the value of the student in the node.
+void Node::setStudent(Student* newstudent)
+{
+  stu = newstudent;
+}
